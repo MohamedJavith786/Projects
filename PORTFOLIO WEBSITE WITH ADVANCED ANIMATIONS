@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Murugadeepak | Portfolio</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script type="module" src="https://unpkg.com/three@0.152.2/build/three.module.js"></script>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1 id="hero-text">Hi, I'm Murugadeepak 👨‍💻</h1>
+    <p>Frontend Developer | Creative Coder</p>
+  </section>
+
+  <!-- About Section -->
+  <section class="about">
+    <h2>About Me</h2>
+    <p>I love crafting beautiful and performant interfaces using modern web technologies. My passion lies in animations and smooth transitions that enhance the user experience.</p>
+  </section>
+
+  <!-- Skills Section -->
+  <section class="skills">
+    <h2>Skills</h2>
+    <div class="skill-bar">
+      <label>HTML</label>
+      <div class="bar"><div class="fill html"></div></div>
+    </div>
+    <div class="skill-bar">
+      <label>CSS</label>
+      <div class="bar"><div class="fill css"></div></div>
+    </div>
+    <div class="skill-bar">
+      <label>JavaScript</label>
+      <div class="bar"><div class="fill js"></div></div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section class="projects">
+    <h2>Projects</h2>
+    <div class="project-card">Animated Portfolio Website</div>
+    <div class="project-card">3D Interactive Resume</div>
+  </section>
+
+  <!-- 3D Section -->
+  <section id="three-container"></section>
+
+  <!-- Contact Section -->
+  <section class="contact">
+    <h2>Contact Me</h2>
+    <form>
+      <input type="text" placeholder="Your Name" required>
+      <input type="email" placeholder="Your Email" required>
+      <textarea placeholder="Your Message"></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <script>
+    // GSAP Hero Animation
+    gsap.from("#hero-text", {
+      duration: 1,
+      y: 50,
+      opacity: 0,
+      ease: "power3.out"
+    });
+
+    // GSAP Skill Bars
+    gsap.to(".fill", {
+      width: "100%",
+      duration: 2,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: ".skills",
+        start: "top 80%",
+      }
+    });
+
+    // THREE.js Scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("three-container").appendChild(renderer.domElement);
+
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ffdd, wireframe: true });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+    camera.position.z = 3;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
