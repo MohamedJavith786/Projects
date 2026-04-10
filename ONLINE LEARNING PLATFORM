@@ -1,0 +1,120 @@
+// Online Learning Platform with Media Streaming, Authentication, and Data Storage
+
+// Dummy database to simulate backend storage
+let database = {
+  users: [{ email: "student@example.com", password: "123456", progress: {} }],
+  courses: [
+    {
+      id: 1,
+      title: "JavaScript Basics",
+      videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+      quiz: [
+        { question: "What is JavaScript?", options: ["Language", "Framework", "Tool"], answer: 0 },
+        { question: "Which keyword declares a variable?", options: ["const", "int", "var"], answer: 2 }
+      ]
+    }
+  ]
+};
+
+let currentUser = null;
+
+// Render login form
+function showLogin() {
+  document.getElementById("app").innerHTML = `
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button onclick="login()">Login</button>
+  `;
+}
+
+// Authenticate user
+function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const user = database.users.find(u => u.email === email && u.password === password);
+  if (user) {
+    currentUser = user;
+    showDashboard();
+  } else {
+    alert("Invalid credentials");
+  }
+}
+
+// Show dashboard with progress tracking
+function showDashboard() {
+  const container = document.getElementById("app");
+  container.innerHTML = `
+    <h1>Welcome, ${currentUser.email}</h1>
+    <h2>Your Courses</h2>
+    ${database.courses.map(c => `
+      <div>
+        <h3>${c.title}</h3>
+        <p>Watched: ${currentUser.progress[c.id]?.watched ? 'Yes' : 'No'}</p>
+        <p>Score: ${currentUser.progress[c.id]?.score ?? 'Not Attempted'}</p>
+        <button onclick="loadCourse(${c.id})">Go to Course</button>
+      </div>
+    `).join('')}
+    <button onclick="logout()">Logout</button>
+  `;
+}
+
+function logout() {
+  currentUser = null;
+  showLogin();
+}
+
+// Load course page with video streaming
+function loadCourse(courseId) {
+  const course = database.courses.find(c => c.id === courseId);
+  const container = document.getElementById("app");
+  container.innerHTML = `
+    <h2>${course.title}</h2>
+    <video width="600" controls>
+      <source src="${course.videoUrl}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <br><br>
+    <button onclick="startQuiz(${courseId})">Take Quiz</button>
+    <button onclick="showDashboard()">Back to Dashboard</button>
+  `;
+  currentUser.progress[courseId] = { watched: true, score: currentUser.progress[courseId]?.score ?? null };
+}
+
+// Start quiz and evaluate answers
+function startQuiz(courseId) {
+  const course = database.courses.find(c => c.id === courseId);
+  const quizHTML = course.quiz.map((q, index) => {
+    return `
+      <div>
+        <p>${q.question}</p>
+        ${q.options.map((opt, i) => `
+          <label><input type="radio" name="q${index}" value="${i}">${opt}</label><br>
+        `).join('')}
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById("app").innerHTML = `
+    <h2>${course.title} - Quiz</h2>
+    <form id="quizForm">
+      ${quizHTML}
+      <button type="submit">Submit Quiz</button>
+    </form>
+  `;
+
+  document.getElementById("quizForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    let score = 0;
+    course.quiz.forEach((q, i) => {
+      const selected = document.querySelector(`input[name=q${i}]:checked`);
+      if (selected && parseInt(selected.value) === q.answer) score++;
+    });
+    currentUser.progress[courseId].score = score;
+    alert(`You scored ${score}/${course.quiz.length}`);
+    showDashboard();
+  });
+}
+
+// Initialize app
+window.onload = showLogin;
